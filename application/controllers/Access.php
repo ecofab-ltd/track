@@ -519,6 +519,90 @@ class Access extends CI_Controller {
         $this->load->view('master', $data);
     }
 
+    public function updateOrderInfo(){
+        $datex = new DateTime('now', new DateTimeZone('Asia/Dhaka'));
+        $date_time=$datex->format('Y-m-d H:i:s');
+        $date=$datex->format('Y-m-d');
+
+        $user_id = $this->session->userdata('id');
+
+        $order_code = $this->input->post('order_code');
+        $brand = $this->input->post('brand');
+        $unit_id = $this->input->post('unit_id');
+        $upload_unit_id = $this->input->post('upload_unit_id');
+        $purchase_order = $this->input->post('purchase_order');
+        $item = $this->input->post('item');
+        $quality = $this->input->post('quality');
+        $color = $this->input->post('color');
+        $style_no = $this->input->post('style_no');
+        $style_name = $this->input->post('style_name');
+        $description = $this->input->post('description');
+        $ex_factory_date = $this->input->post('ex_factory_date');
+        $previous_ex_factory_date = $this->input->post('previous_ex_factory_date');
+        $fabric_in_house_date = $this->input->post('fabric_in_house_date');
+        $accessories_in_house_date = $this->input->post('accessories_in_house_date');
+        $pp_approval_date = $this->input->post('pp_approval_date');
+
+        $ids = $this->input->post('id');
+        $sizes = $this->input->post('size');
+        $quantities = $this->input->post('quantity');
+        $previous_quantities = $this->input->post('previous_quantity');
+
+        foreach($sizes AS $k => $v){
+            $id = $ids[$k];
+            $size = $v;
+            $quantity = $quantities[$k];
+            $previous_quantity = $previous_quantities[$k];
+
+            $data['purchase_order'] = $purchase_order;
+            $data['item'] = $item;
+            $data['quality'] = $quality;
+            $data['color'] = $color;
+            $data['style_no'] = $style_no;
+            $data['style_name'] = $style_name;
+            $data['description'] = $description;
+
+            $data['ex_factory_date'] = $ex_factory_date;
+
+            if($ex_factory_date != $previous_ex_factory_date){
+                $data['previous_ex_factory_date'] = $previous_ex_factory_date;
+                $data['ex_factory_date_changed_by'] = $user_id;
+            }
+
+            $data['fabric_in_house_date'] = $fabric_in_house_date;
+            $data['accessories_in_house_date'] = $accessories_in_house_date;
+            $data['pp_approval_date'] = $pp_approval_date;
+
+            $data['size'] = $size;
+            $data['quantity'] = $quantity;
+
+            if($quantity != $previous_quantity){
+                $data['previous_quantity'] = ($previous_quantity != '' ? $previous_quantity : 0);
+                $data['quantity_changed_by'] = $user_id;
+            }
+
+            if($id != ''){
+                $data['update_date'] = $date;
+                $data['updated_by'] = $user_id;
+
+                $this->Access_model->updateDataActiveRecord('tb_order', 'id', $id, $data);
+            }else{
+                $data['order_code'] = $order_code;
+                $data['brand'] = $brand;
+                $data['upload_date'] = $date;
+                $data['upload_by'] = $user_id;
+                $data['unit_id'] = $unit_id;
+                $data['upload_unit_id'] = $upload_unit_id;
+
+                $this->Access_model->insertData('tb_order', $data);
+            }
+
+        }
+
+        redirect('Access/editPoInfo/'.$order_code);
+
+    }
+
     public function orderList(){
         $data['title'] = 'Order List';
         $user_id = $this->session->userdata('id');

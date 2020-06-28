@@ -54,17 +54,8 @@
                     <div class="p-5">
                             <div class="form-group row">
                                 <div class="col-sm-2 mb-3 mb-sm-0">
-                                    Order Code
-                                    <select class="form-control" id="order_code" name="order_code">
-                                        <option value="">Select Order Code</option>
-                                        <?php foreach ($orders AS $v_o){ ?>
-                                            <option value="<?php echo $v_o['order_code'];?>"><?php echo $v_o['order_code'];?></option>
-                                        <?php } ?>
-                                    </select>
-                                </div>
-                                <div class="col-sm-2 mb-3 mb-sm-0">
-                                    Select Brand
-                                    <select class="form-control" id="brand" name="brand">
+                                    Brand
+                                    <select class="form-control" id="brand" name="brand" onchange="getStyles();">
                                         <option value="">Select Brand</option>
                                         <?php foreach ($brands AS $v_b){ ?>
                                         <option value="<?php echo $v_b['brand'];?>"><?php echo $v_b['brand'];?></option>
@@ -72,9 +63,14 @@
                                     </select>
                                 </div>
                                 <div class="col-sm-2 mb-3 mb-sm-0">
+                                    Style
+                                    <select class="form-control" id="style" name="style">
+                                        <option value="">Select Style</option>
+                                    </select>
+                                </div>
+                                <div class="col-sm-2 mb-3 mb-sm-0">
                                     <span>Ship Date From</span>
                                     <input type="date" class="form-control datepicker" placeholder="YYYY-mm-dd" name="date" id="from_date" required />
-
                                 </div>
                                 <div class="col-sm-2 mb-3 mb-sm-0">
                                     <span>Ship Date To</span>
@@ -168,7 +164,7 @@
     }
 
     function getOrderList(){
-        var order_code = $("#order_code").val();
+        var style = $("#style").val();
         var brands = $("#brand").val();
         var from_date = $("#from_date").val();
         var to_date = $("#to_date").val();
@@ -184,7 +180,7 @@
                 async: false,
                 url: "<?php echo base_url();?>Dashboard/getOrderProgressFilterList",
                 type: "POST",
-                data: {order_code: order_code, brands: brands, from_date: from_date, to_date: to_date},
+                data: {style: style, brands: brands, from_date: from_date, to_date: to_date},
                 dataType: "html",
                 success: function (data){
                     $("#table_body").append(data);
@@ -246,6 +242,33 @@
             $("#"+table_id+" .line_qty").val('');
         }
 
+    }
+
+    function getStyles() {
+        var brands = $("#brand").val();
+
+//    brands = brands != null ? brands : [];
+
+        if(brands != ''){
+            $("#style").empty();
+            $("#loader").css("display", "block");
+
+            $.ajax({
+                async: false,
+                url: "<?php echo base_url();?>Dashboard/getStyles",
+                type: "POST",
+                data: {brands: brands},
+                dataType: "html",
+                success: function (data){
+                    console.log(data);
+
+                    $("#style").append(data);
+                    $("#loader").css("display", "none");
+                }
+            });
+        }else{
+            alert('Please Select Brand!');
+        }
     }
 
     function ExportToExcel(tableid) {

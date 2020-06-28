@@ -22,8 +22,32 @@ class Dashboard extends CI_Controller {
         $this->load->view('reports/master', $data);
     }
 
+    public function getStyles(){
+        $brands = $this->input->post('brands');
+
+//        if($brands_array != NULL){
+//            $brands = implode("', '", $brands_array);
+//        }
+
+        $where='';
+
+        if($brands != ""){
+            $where .= " AND brand='$brands' GROUP BY style_no, style_name";
+        }
+
+        $styles = $this->Access_model->selectData('tb_order', '*', $where);
+
+        $style_options = '<option value="">Style</option>';
+
+        foreach($styles AS $v){
+            $style_options .= '<option value="'.$v['style_name'].'">'.$v['style_name'].'</option>';
+        }
+
+        echo $style_options;
+    }
+
     public function getOrderProgressFilterList(){
-        $order_code = $this->input->post('order_code');
+        $style = $this->input->post('style');
         $brands = $this->input->post('brands');
         $from_date = $this->input->post('from_date');
         $to_date = $this->input->post('to_date');
@@ -34,8 +58,8 @@ class Dashboard extends CI_Controller {
 
         $where = '';
 
-        if($order_code != ''){
-            $where .= " AND order_code='$order_code'";
+        if($style != ''){
+            $where .= " AND style_name='$style'";
         }
 
         if($brands != ''){
